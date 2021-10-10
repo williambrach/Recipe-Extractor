@@ -1,0 +1,6 @@
+- https://www.data-blogger.com/2016/08/18/scraping-a-website-with-python-scrapy/
+- https://stackoverflow.com/questions/58297221/scrapy-how-to-parse-multiple-start-urls
+- https://docs.scrapy.org/en/latest/topics/practices.html
+- https://docs.scrapy.org/en/latest/intro/tutorial.html
+- https://docs.scrapy.org/en/latest/intro/install.html
+- https://docs.scrapy.org/en/latest/intro/tutorial.html

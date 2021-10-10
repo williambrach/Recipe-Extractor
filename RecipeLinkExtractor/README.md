@@ -4,3 +4,4 @@
 - https://docs.scrapy.org/en/latest/intro/tutorial.html
 - https://docs.scrapy.org/en/latest/intro/install.html
 - https://docs.scrapy.org/en/latest/intro/tutorial.html
+- https://www.youtube.com/watch?v=quMUjys9BcU&list=PLhTjy8cBISEqkN-5Ku_kXG4QW33sxQo0t&index=25

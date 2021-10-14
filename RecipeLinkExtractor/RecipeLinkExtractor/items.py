@@ -7,6 +7,9 @@ import scrapy
 
 
 class RecipelinkextractorItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    title = scrapy.Field()
+    csv_path = scrapy.Field()
+    dir_path = scrapy.Field()
+    links = scrapy.Field()
+    content = scrapy.Field()
+    url = scrapy.Field()

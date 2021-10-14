@@ -1,25 +1,31 @@
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+import csv
+import os
 
-
-# useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 
 
 class RecipelinkextractorPipeline:
+    
     def process_item(self, item, spider):
 
-        if item['recipe_url'] in item['link']:
-            csv_path = item['csv_path']
-            dir_path = item['dir_path']
-            # OPEN CSV FILE
-            # append new line 
+        path_to_file = item['dir_path'] + "/" + item['title']+".html"
+        # check if csv file exists
+        if not os.path.isfile(item['csv_path']):
+            print(item['csv_path'])
+            with open(item['csv_path'], 'w', encoding='UTF8', newline='') as f:
+                writer = csv.writer(f, delimiter='\t')
+                writer.writerow(["title", "url", "path_to_file"])
+                f.close()
+        # # add new row into dataset
+        with open(item['csv_path'], 'a', encoding='UTF8', newline='') as f:
+            writer = csv.writer(f, delimiter='\t')
+            # write the data
+            writer.writerow([item['title'],item['url'],path_to_file])
+            f.close()
 
-            # CREATE HTML FILE
-            # and save it to special directory for that files 
-        else:
-            pass
+        # save html file
+        file = open(path_to_file,"w", encoding='UTF8')
+        file.write(item['content'])
+        file.close()
 
-        #return item
+        return item

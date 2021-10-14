@@ -1,14 +1,18 @@
 import scrapy
-from scrapy.linkextractor import LinkExtractor
+from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import Rule, CrawlSpider
 from ..items import RecipelinkextractorItem
 
 class RecipeLinkSpider(scrapy.Spider):
     name = "RecipeLinks"
 
-    allowed_domains = "bbc.food.com"
-    recipe_url = ""
-    start_urls = ["https://www.data-blogger.com/"]
+    allowed_domains = ["bbc.co.uk"]
+    
+    recipe_url = "www.bbc.co.uk/food/recipes/"
+    start_urls = ["https://www.bbc.co.uk/food"]
+    csv_path = "./DATA/bbc_food.csv"
+    dir_path = "./DATA/"
+
     visited = list()
     queue = list()
     
@@ -19,21 +23,44 @@ class RecipeLinkSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
-        # The list of items that are found on the particular page
-        items = []
-        # Only extract canonicalized and unique links (with respect to the current page)
-        links = LinkExtractor(canonicalize=True, unique=True).extract_links(response)
-        
-        links  = [link for link in links if self.allowed_domains in link and (link not in self.visited or link not in self.queue)]
+        if response.status == 302:
+            if len(self.queue) > 0:
+                link = self.queue.pop(0)
+                self.visited.append(link)
+                print(link)            
+                yield scrapy.Request(url=link, meta = {
+                    'dont_redirect': True,
+                    'handle_httpstatus_list': [302]}, callback=self.parse)
 
-        # TODO extract from RESPONSE - URL, Content, Title
+        item = RecipelinkextractorItem()
+
+        links = LinkExtractor(canonicalize=True, unique=True).extract_links(response)
+        cleanedLinks = []
+        for link in links:
+            if link.nofollow == True:
+                continue
+            link = link.url.strip().strip("/") 
+            if link in self.visited:
+                continue
+            if "https://www.bbc.co.uk/food/".upper() in link.upper():
+                cleanedLinks.append(link)
+        links = cleanedLinks
+        
+        if self.recipe_url.upper() in response.request.url.upper():
+            item['title'] = response.css("title::text")[0].get()
+            item['csv_path'] = self.csv_path
+            item['dir_path'] = self.dir_path
+            item['links'] = links
+            item['content'] = response.text
+            item['url'] = response.request.url       
+            yield item
 
         self.queue.extend(links)
 
         if len(links) > 0:
-            link = links.pop(0)
+            link = self.queue.pop(0)
             self.visited.append(link)
-
-            # TODO yield next step and this page to process down in pipeline 
-
-            yield scrapy.Request(url=link, callback=self.parse)
+            print(link)            
+            yield scrapy.Request(url=link, meta = {
+                  'dont_redirect': True,
+                  'handle_httpstatus_list': [302]}, callback=self.parse)

@@ -23,29 +23,25 @@ class RecipeLinkSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
-        if response.status == 302:
+        if response.status != 200:
             if len(self.queue) > 0:
                 link = self.queue.pop(0)
                 self.visited.append(link)
                 print(link)            
-                yield scrapy.Request(url=link, meta = {
-                    'dont_redirect': True,
-                    'handle_httpstatus_list': [302]}, callback=self.parse)
+                yield scrapy.Request(url=link, callback=self.parse)
 
         item = RecipelinkextractorItem()
 
         links = LinkExtractor(canonicalize=True, unique=True).extract_links(response)
-        cleanedLinks = []
         for link in links:
             if link.nofollow == True:
                 continue
-            link = link.url.strip().strip("/") 
-            if link in self.visited:
-                continue
-            if "https://www.bbc.co.uk/food/".upper() in link.upper():
-                cleanedLinks.append(link)
-        links = cleanedLinks
-        
+            new_link = link.url.strip().strip("/") 
+            if "https://www.bbc.co.uk/food/".upper() in new_link.upper() and new_link not in self.visited and new_link not in self.queue:
+                self.queue.append(new_link)
+
+        #self.queue = list(set(self.queue))
+
         if self.recipe_url.upper() in response.request.url.upper():
             item['title'] = response.css("title::text")[0].get()
             item['csv_path'] = self.csv_path
@@ -54,13 +50,10 @@ class RecipeLinkSpider(scrapy.Spider):
             item['content'] = response.text
             item['url'] = response.request.url       
             yield item
+        #print(self.queue)
 
-        self.queue.extend(links)
 
-        if len(links) > 0:
-            link = self.queue.pop(0)
-            self.visited.append(link)
-            print(link)            
-            yield scrapy.Request(url=link, meta = {
-                  'dont_redirect': True,
-                  'handle_httpstatus_list': [302]}, callback=self.parse)
+        if len(self.queue) > 0:
+            next_link = self.queue.pop(0)
+            self.visited.append(next_link)       
+            yield scrapy.Request(url=next_link, callback=self.parse)

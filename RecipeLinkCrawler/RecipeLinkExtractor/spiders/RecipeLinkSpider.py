@@ -7,7 +7,7 @@ class RecipeLinkSpider(scrapy.Spider):
     name = "RecipeLinks"
 
     allowed_domains = ["bbc.co.uk"]
-    
+    handle_httpstatus_list = [404]
     recipe_url = "www.bbc.co.uk/food/recipes/"
     start_urls = ["https://www.bbc.co.uk/food"]
     csv_path = "./DATA/bbc_food.csv"

@@ -28,7 +28,7 @@ class RecipeLinkSpider(scrapy.Spider):
                 link = self.queue.pop(0)
                 self.visited.append(link)
                 print(link)            
-                yield scrapy.Request(url=link, callback=self.parse)
+                yield scrapy.Request(url=link, callback=self.parse,dont_filter = True)
 
         item = RecipelinkextractorItem()
 
@@ -40,7 +40,7 @@ class RecipeLinkSpider(scrapy.Spider):
             if "https://www.bbc.co.uk/food/".upper() in new_link.upper() and new_link not in self.visited and new_link not in self.queue:
                 self.queue.append(new_link)
 
-        #self.queue = list(set(self.queue))
+        self.queue = list(set(self.queue))
 
         if self.recipe_url.upper() in response.request.url.upper():
             item['title'] = response.css("title::text")[0].get()
@@ -55,5 +55,6 @@ class RecipeLinkSpider(scrapy.Spider):
 
         if len(self.queue) > 0:
             next_link = self.queue.pop(0)
-            self.visited.append(next_link)       
-            yield scrapy.Request(url=next_link, callback=self.parse)
+            self.visited.append(next_link)
+            print(link)       
+            yield scrapy.Request(url=next_link, callback=self.parse,dont_filter = True)

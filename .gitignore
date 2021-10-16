@@ -1,5 +1,8 @@
-RecipeLinkExtractor/linkextractor/
 
+RecipeLinkCrawler/linkextractor/
+
+
+RecipeLinkCrawler/DATA/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

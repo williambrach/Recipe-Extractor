@@ -2,6 +2,8 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import Rule, CrawlSpider
 from ..items import RecipelinkextractorItem
+import re
+
 
 class RecipeLinkSpider(scrapy.Spider):
     name = "RecipeLinks"
@@ -43,14 +45,15 @@ class RecipeLinkSpider(scrapy.Spider):
         self.queue = list(set(self.queue))
 
         if self.recipe_url.upper() in response.request.url.upper():
-            item['title'] = response.css("title::text")[0].get()
+            title_pattern = "<title.*?>(.+?)</title>"
+            title = re.findall(title_pattern, response.text)[0]
+            item['title'] = title
             item['csv_path'] = self.csv_path
             item['dir_path'] = self.dir_path
             item['links'] = links
             item['content'] = response.text
             item['url'] = response.request.url       
             yield item
-        #print(self.queue)
 
 
         if len(self.queue) > 0:

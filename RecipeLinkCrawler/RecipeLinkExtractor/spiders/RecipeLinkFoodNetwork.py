@@ -6,14 +6,14 @@ import re
 
 
 class RecipeLinkSpider(scrapy.Spider):
-    name = "RecipeLinks"
+    name = "RecipeLinksSpoon"
 
-    allowed_domains = ["bbc.co.uk"]
-    handle_httpstatus_list = [404,400]
-    recipe_url = "www.bbc.co.uk/food/recipes/"
-    start_urls = ["https://www.bbc.co.uk/food"]
-    csv_path = "./DATA/bbc/bbc_food.csv"
-    dir_path = "./DATA/bbc/"
+    allowed_domains = ["spoonacular.com/"]
+    handle_httpstatus_list = [404,400,500]
+    recipe_url = "spoonacular.com/recipes/"
+    start_urls = ["https://spoonacular.com/"]
+    csv_path = "./DATA/spoon/spoon_food.csv"
+    dir_path = "./DATA/spoon/"
 
     visited = list()
     queue = list()
@@ -39,14 +39,15 @@ class RecipeLinkSpider(scrapy.Spider):
             if link.nofollow == True:
                 continue
             new_link = link.url.strip().strip("/") 
-            if "https://www.bbc.co.uk/food/".upper() in new_link.upper() and new_link not in self.visited and new_link not in self.queue:
-                self.queue.append(new_link)
+            if "https://spoonacular.com/recipes/".upper() in new_link.upper() and new_link not in self.visited and new_link not in self.queue:
+                if (len(new_link) < 1000):
+                    self.queue.append(new_link)
 
         self.queue = list(set(self.queue))
 
         if self.recipe_url.upper() in response.request.url.upper():
             title_pattern = "<title.*?>(.+?)</title>"
-            title = re.findall(title_pattern, response.text)[0]
+            title = re.findall(title_pattern, response.text)[0].split("|")[0].strip()
             item['title'] = title
             item['csv_path'] = self.csv_path
             item['dir_path'] = self.dir_path

@@ -6,14 +6,14 @@ import re
 
 
 class RecipeLinkSpider(scrapy.Spider):
-    name = "RecipeLinks"
+    name = "RecipeLinksSimplyRecipes"
 
-    allowed_domains = ["bbc.co.uk"]
-    handle_httpstatus_list = [404,400]
-    recipe_url = "www.bbc.co.uk/food/recipes/"
-    start_urls = ["https://www.bbc.co.uk/food"]
-    csv_path = "./DATA/bbc/bbc_food.csv"
-    dir_path = "./DATA/bbc/"
+    allowed_domains = ["simplyrecipes.com"]
+    handle_httpstatus_list = [404,400,500 ]
+    recipe_url = "www.simplyrecipes.com/recipes/"
+    start_urls = ["https://www.simplyrecipes.com/"]
+    csv_path = "./DATA/simply/simply_food.csv"
+    dir_path = "./DATA/simply/"
 
     visited = list()
     queue = list()
@@ -39,7 +39,7 @@ class RecipeLinkSpider(scrapy.Spider):
             if link.nofollow == True:
                 continue
             new_link = link.url.strip().strip("/") 
-            if "https://www.bbc.co.uk/food/".upper() in new_link.upper() and new_link not in self.visited and new_link not in self.queue:
+            if "https://www.simplyrecipes.com/recipes/".upper() in new_link.upper() and new_link not in self.visited and new_link not in self.queue:
                 self.queue.append(new_link)
 
         self.queue = list(set(self.queue))

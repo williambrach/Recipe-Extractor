@@ -6,14 +6,14 @@ import re
 
 
 class RecipeLinkSpider(scrapy.Spider):
-    name = "RecipeLinks"
+    name = "RecipeLinksEpic"
 
-    allowed_domains = ["bbc.co.uk"]
+    allowed_domains = ["https://www.epicurious.com/"]
     handle_httpstatus_list = [404,400]
-    recipe_url = "www.bbc.co.uk/food/recipes/"
-    start_urls = ["https://www.bbc.co.uk/food"]
-    csv_path = "./DATA/bbc/bbc_food.csv"
-    dir_path = "./DATA/bbc/"
+    recipe_url = "www.epicurious.com/recipes/"
+    start_urls = ["https://www.epicurious.com/","https://www.epicurious.com/recipes-menus","https://www.epicurious.com/search?special-consideration=vegetarian"]
+    csv_path = "./DATA/epic/epic_food.csv"
+    dir_path = "./DATA/epic/"
 
     visited = list()
     queue = list()
@@ -39,14 +39,15 @@ class RecipeLinkSpider(scrapy.Spider):
             if link.nofollow == True:
                 continue
             new_link = link.url.strip().strip("/") 
-            if "https://www.bbc.co.uk/food/".upper() in new_link.upper() and new_link not in self.visited and new_link not in self.queue:
-                self.queue.append(new_link)
+            if "https://www.epicurious.com/recipes/".upper() in new_link.upper() and new_link not in self.visited and new_link not in self.queue:
+                if (len(new_link) < 1000):
+                    self.queue.append(new_link)
 
         self.queue = list(set(self.queue))
 
         if self.recipe_url.upper() in response.request.url.upper():
             title_pattern = "<title.*?>(.+?)</title>"
-            title = re.findall(title_pattern, response.text)[0]
+            title = re.findall(title_pattern, response.text)[0].split("|")[0].strip()
             item['title'] = title
             item['csv_path'] = self.csv_path
             item['dir_path'] = self.dir_path

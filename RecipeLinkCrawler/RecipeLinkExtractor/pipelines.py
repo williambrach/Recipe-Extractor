@@ -11,7 +11,6 @@ class RecipelinkextractorPipeline:
         path_to_file = item['dir_path'] + "/" + item['title']+".html"
         # check if csv file exists
         if not os.path.isfile(item['csv_path']):
-            print(item['csv_path'])
             with open(item['csv_path'], 'w', encoding='UTF8', newline='') as f:
                 writer = csv.writer(f, delimiter='\t')
                 writer.writerow(["title", "url", "path_to_file"])

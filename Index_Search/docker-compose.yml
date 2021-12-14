@@ -1,0 +1,13 @@
+version: '3.1'
+services:
+  db:
+    image: coady/pylucene:latest
+    volumes:
+      - C:/Users/ramang/Developer/Recipe-Extractor/Index_Search/index.py:/tmp/index.py
+      - C:/Users/ramang/Developer/Recipe-Extractor/Index_Search/search.py:/tmp/search.py
+      - C:/Users/ramang/Developer/Recipe-Extractor/Index_Search/Data:/tmp/data
+    command: python
+
+
+
+
